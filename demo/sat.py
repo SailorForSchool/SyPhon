@@ -1,11 +1,25 @@
 import z3
+from demo.flag import *
 
 def infer_rule(data, change_rule, feature_sizes):
+  if (S_INFERR):
+    print("In sat.infer_rule")
   triples_changed = []
+  if (S_INFERR):
+    print("For each triple, apply_change is called.\n")
   for (l, c, r), new_c in data:
     changed_c = apply_change(c, change_rule)
     if changed_c !=  c:
       triples_changed.append(((l, c, r), c != new_c))
+
+  # DEBUG OUTPUT: in features not phoneme
+  if (S_INFER_V):
+    print("changed triples: \n")
+    for (le, t, ri), b in triples_changed:
+      if (b):
+        print("features list - triple: ", le, t, ri)
+  # DEBUG END
+
   rule = query_z3(triples_changed, feature_sizes)
   return rule
 
@@ -27,11 +41,26 @@ def shared_features(triples):
   return dict(shared)
 
 def apply_change(features, rule):
+
   new_features = dict(features)
   new_features.update(rule)
+
+  # DEBUG OUTPUT: TODO could output the feature changed?
+  if (S_APCH):
+    print("In sat.apply_change\n")
+  if (S_APCH_V):
+    print("rule", rule, "\n")
+  # END DBEUG
+
   return new_features
 
 def infer_change(pairs):
+
+  # DEBuG STATEMENT
+  if(S_INFER):
+    print("In sat.infer_change")
+  # END DEBUG
+
   solver = z3.Optimize()
   included_features = {}
   positive_features = {}

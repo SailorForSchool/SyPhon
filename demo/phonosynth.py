@@ -1,5 +1,6 @@
 import csv, itertools, unicodedata
 from demo import sat
+from demo.flag import *
 
 SYMBOL_NORMALIZATION = {
   'g': 'ɡ'
@@ -67,7 +68,8 @@ def parse_grapheme(grapheme):
       break
     symbol = normalized_symbol
     grapheme.pop(0)
-  print(symbol)
+  # added by Shraddha
+  # print(symbol)
   features = dict(SYMBOL_TO_FEATURES[symbol])
   for modifier in grapheme:
     features.update(SYMBOL_MODIFIERS[modifier])
@@ -83,16 +85,46 @@ def parse_word(word):
   return [parse_grapheme(grapheme) for grapheme in graphemes]
 
 def parse(words):
+
+  # DEBUG STATEMENT
+  if (PARSE):
+    print ("In phonosynth.parse\n")
+  # END DEBUG
+
   data = []
   for underlying_form, realization in words:
     underlying_features = parse_word('#' + underlying_form + '#')
     realized_features = parse_word(realization)
     for i, triple in enumerate(triples(underlying_features)):
       data.append((triple, realized_features[i]))
+
+  # DEBUG OUTPUT
+  if (PARSE_V):
+    print("parsed triples:\n")
+    for (l, t, r), _ in data:
+      print("triple: ", FEATURES_TO_SYMBOL.get(frozenset(l.items())), " ", FEATURES_TO_SYMBOL.get(frozenset(t.items())), " ",  FEATURES_TO_SYMBOL.get(frozenset(r.items())))
+    print ("\n")
+  # END DEBUG
+
   return data
 
 def infer_change(data):
+
+  # DEBUG STATEMENT
+  if (P_CHANGE):
+    print ("In phonosynth.infer_change\n")
+  # END DEBUG
+
   changed = [(old, new) for (_, old, _), new in data if old != new]
+
+  # DEBUG OUTPUT
+  if (P_CHANGE_V):
+    print ("changed data:\n",)
+    for (o, n) in changed:
+      print("change: ", FEATURES_TO_SYMBOL.get(frozenset(o.items())), " -> ", FEATURES_TO_SYMBOL.get(frozenset(n.items())))
+    print ("\n")
+  # END DEBUG
+
   return sat.infer_change(changed)
 
 def infer_rule(data, change_rule):
