@@ -7,7 +7,7 @@ the codebase
 """
 
 # make this false to turn off verbose flags
-VERBOSE = True
+VERBOSE = False
 
 APP = True
 # flags for app.py
@@ -31,6 +31,7 @@ S_INFERR = True
 S_INFERR_V = False
 S_APCH = False
 S_APCH_V = False
+S_QUERY = True
 
 
 # for eachfile, if the master flag is false,
@@ -50,6 +51,7 @@ if (not SAT):
     S_INFER_V = False
     S_APCH = False
     S_APCH_V = False
+    S_QUERY = False
 
 if (not VERBOSE):
     H_INFER_V = False

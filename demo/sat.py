@@ -106,23 +106,67 @@ def query_z3(triples_changed, feature_sizes):
     'right': 1000
   }
   for ident, (feature, position) in idents_to_features.items():
+    # hmmm?
     solver.add_soft(z3.Not(z3.Bool(ident)), weight=10000 + position_weights[position] + feature_sizes[(feature, shared[(feature, position)])])
-
+  
+  debug = []
+  # for every triple...
   for triple, changed in triples_changed:
     conjunction = []
+
+
+    # for every phone in triple...
     for i, phone in enumerate(triple):
+      # for every feature in phone...
       for feature in phone.keys():
+
+
+        # record position of phone in triple
         position = POSITIONS[i]
+        # if the feature, position is sharded among triples
         if (feature, position) in shared:
+
+
+          # format for solver
           ident = to_ident(feature, position)
+
+
+          # mark if included (+ or -) BOOL
           included = phone[feature] != '0'
+          # mark if the feature has matches the value in the shared changed triples
           matches = phone[feature] == shared[(feature, position)]
+
+
+
+          # (feature_position_pair AND included) => matches
           conjunction.append(z3.Implies(z3.And(z3.Bool(ident), included), matches))
+
+          # TODO DEBUG
+          if (S_QUERY):
+            if ((not matches) and (not changed) and included):
+              if ident + " (no rule)" not in debug:
+                print (ident, " may be included (no rule application)")
+                debug.append(ident + " (no rule)")
+            if ((not matches) and changed and included):
+              if ident + " (rule)" not in debug:
+                print (ident, " must NOT be included (rule application)")
+                debug.append(ident + " (rule)")
+          # END DEBUG
+
+    # per triple, check if there was a change
     if conjunction != []:
+      
+      # if change -> add all conjunction as constraint
       if changed:
         solver.add(z3.And(*conjunction))
+
+      # if not changed -> add conjunction as NOT constraint
       else:
+        # encoding counter examples - explicitly the implicational relationship must be false because
+        # the context of the "rule" if the feature position pair is included is present and so
+        # the lack of change implies that it is explicitly NOT in the rule
         solver.add(z3.Not(z3.And(*conjunction)))
+
 
   if solver.check() == z3.sat:
     rule = (dict(), dict(), dict())
@@ -131,6 +175,7 @@ def query_z3(triples_changed, feature_sizes):
       if z3.is_true(model[ident]):
         feature, position = idents_to_features[str(ident)]
         rule[POSITIONS.index(position)][feature] = shared[(feature, position)]
+        print ("rule: ", rule)
     return rule
   else:
     print('unsat')
