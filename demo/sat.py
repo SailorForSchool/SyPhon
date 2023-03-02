@@ -3,7 +3,7 @@ from demo.flag import *
 
 def infer_rule(data, change_rule, feature_sizes):
   if (S_INFERR):
-    print("In sat.infer_rule")
+    print("In sat.infer_rule\n")
   triples_changed = []
   if (S_INFERR):
     print("For each triple, apply_change is called.\n")
@@ -58,7 +58,7 @@ def infer_change(pairs):
 
   # DEBuG STATEMENT
   if(S_INFER):
-    print("In sat.infer_change")
+    print("In sat.infer_change\n")
   # END DEBUG
 
   solver = z3.Optimize()

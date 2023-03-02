@@ -42,7 +42,8 @@ def infer_rule(words):
   if(INFER_V):
     print("left: ", left)
     print("phone: ", phone)
-    print("right: ", right, "\n")
+    print("right: ", right)
+    print("change: ", change, "\n")
   
   return {
     'phone': format_features(phone),

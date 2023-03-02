@@ -19,7 +19,7 @@ INFER_V = True
 PHONOSYNTH = True
 # flags for phonosynth.py
 PARSE = True
-PARSE_V = False
+PARSE_V = True
 P_CHANGE = True
 P_CHANGE_V = True
 
